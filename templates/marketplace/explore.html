@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Explorar Clases — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="py-4">
+  <div class="mb-4">
+    <h2 class="fw-bold text-dark">Explorar conocimientos</h2>
+    <p class="text-secondary">Encuentra la clase perfecta e invierte tus SkillCoins.</p>
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for skill in skills %}
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm rounded-4 p-3 hover-shadow transition-all">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-light text-dark border fw-normal rounded-pill px-3 py-2">
+              <i class="bi {{ skill.category.icon }} me-1"></i>{{ skill.category.name }}
+            </span>
+            <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-3 py-2">
+              <i class="bi bi-coin text-warning me-1"></i>{{ skill.price_per_hour }} SC/h
+            </span>
+          </div>
+          
+          <h5 class="card-title fw-bold mb-2">{{ skill.title }}</h5>
+          <p class="card-text text-secondary small mb-4">{{ skill.description|truncatechars:100 }}</p>
+          
+          <div class="mt-auto border-top pt-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center text-muted small">
+              <i class="bi bi-person-fill text-primary me-2"></i>
+              <span>{{ skill.teacher.username|default:skill.teacher.email }}</span>
+            </div>
+            <!-- Botón para ver detalles (crearemos esta ruta después) -->
+<a href="{% url 'marketplace:skill_detail' skill.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver más</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5">
+        <div class="text-muted mb-3"><i class="bi bi-inbox fs-1"></i></div>
+        <h5 class="text-dark">No hay clases disponibles</h5>
+        <p class="text-muted">Aún no hay clases publicadas. ¡Sé el primero en enseñar algo!</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

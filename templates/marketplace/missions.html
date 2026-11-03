@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+  <!-- Cabecera Oficial SkillSwap -->
+  <div class="text-white rounded-top-3 border border-secondary border-opacity-50 p-3 text-center position-relative shadow-sm" style="background-color: #1a2230;">
+    <h3 class="fw-bold mb-0 text-uppercase text-white" style="letter-spacing: 2px;">Misiones</h3>
+  </div>
+
+  <!-- Pestañas (Sin números en el nombre) -->
+  <ul class="nav nav-pills nav-fill border border-secondary border-opacity-50 rounded-bottom-3 p-1 mb-4 shadow-sm" id="missionTabs" role="tablist" style="background-color: #121824;">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active rounded-1 text-white fw-bold" id="daily-tab" data-bs-toggle="pill" data-bs-target="#daily" type="button" role="tab">Diarias</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link rounded-1 text-white fw-bold position-relative" id="weekly-tab" data-bs-toggle="pill" data-bs-target="#weekly" type="button" role="tab">
+        Semanales
+        {% if weekly_has_claimable %}
+          <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle"></span>
+        {% endif %}
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link rounded-1 text-white fw-bold" id="permanent-tab" data-bs-toggle="pill" data-bs-target="#permanent" type="button" role="tab">Permanentes</button>
+    </li>
+  </ul>
+
+  <!-- Contenido de las pestañas -->
+  <div class="tab-content" id="missionTabsContent">
+    
+    <!-- PESTAÑA: DIARIAS -->
+    <div class="tab-pane fade show active" id="daily" role="tabpanel">
+      <div class="card border-purple border-opacity-50 shadow-sm mb-3 text-white rounded-4" style="background-color: #1a2230;">
+        <div class="card-header text-white fw-bold text-uppercase py-2 rounded-top-4 border-bottom border-secondary border-opacity-25" style="background-color: #212c3f;">
+          <i class="bi bi-award-fill text-purple me-2"></i> Bono de Misiones Diarias
+        </div>
+        <div class="card-body d-flex align-items-center gap-3 py-3">
+          <div class="flex-grow-1">
+            <p class="mb-2 text-white fw-semibold small">Completa las 5 Misiones Diarias (<span class="text-purple fw-bold">{{ dailies_completed }}</span>/5)</p>
+            <div class="progress bg-dark border border-secondary border-opacity-25" style="height: 10px;">
+              <div class="progress-bar bg-purple" role="progressbar" style="width: {% widthratio dailies_completed 5 100 %}%;"></div>
+            </div>
+          </div>
+          <div class="text-center reward-box p-2 rounded-3 {% if daily_bonus_claimable %}glow-purple{% endif %}" style="width: 75px; background-color: #121824; border: 1px solid #495057;">
+            <i class="bi bi-gift-fill fs-3 text-purple"></i>
+            <span class="d-block small text-white fw-bold mt-1">+10 SC</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex flex-column gap-2">
+        {% for um in daily_missions %}
+          {% include 'marketplace/partials/_mission_row.html' with um=um %}
+        {% empty %}
+          <div class="text-center text-muted py-4 bg-dark rounded-4 border border-secondary border-opacity-25">No hay misiones diarias disponibles. Asegúrate de crearlas en el panel de admin.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- PESTAÑA: SEMANALES -->
+    <div class="tab-pane fade" id="weekly" role="tabpanel">
+      <div class="d-flex flex-column gap-2">
+        {% for um in weekly_missions %}
+          {% include 'marketplace/partials/_mission_row.html' with um=um %}
+        {% empty %}
+          <div class="text-center text-muted py-4 bg-dark rounded-4 border border-secondary border-opacity-25">No hay misiones semanales activas.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- PESTAÑA: PERMANENTES -->
+    <div class="tab-pane fade" id="permanent" role="tabpanel">
+      <div class="d-flex flex-column gap-2">
+        {% for um in permanent_missions %}
+          {% include 'marketplace/partials/_mission_row.html' with um=um %}
+        {% empty %}
+          <div class="text-center text-muted py-4 bg-dark rounded-4 border border-secondary border-opacity-25">No hay misiones permanentes registradas.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal de Información -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-secondary text-white shadow-lg rounded-4" style="background-color: #1a2230;">
+      <div class="modal-header border-secondary border-opacity-25">
+        <h5 class="modal-title fw-bold text-purple" id="infoTitle">Detalle de Misión</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-muted small" id="infoDesc"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .nav-pills .nav-link { color: #adb5bd; background-color: transparent; }
+  .nav-pills .nav-link.active { background-color: #a885e8 !important; color: #fff !important; }
+  .reward-box { background: #121824; border: 1px solid #495057; border-radius: 8px; cursor: pointer; transition: 0.3s; position: relative;}
+  .reward-box.glow-purple { border-color: #a885e8; box-shadow: 0 0 15px rgba(168, 133, 232, 0.4); background: #212c3f; }
+  .reward-box.glow-purple:hover { transform: scale(1.05); }
+  .reward-box.claimed { opacity: 0.5; filter: grayscale(100%); cursor: not-allowed; }
+  .text-purple { color: #a885e8 !important; }
+  .bg-purple { background-color: #a885e8 !important; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function showInfo(title, desc) {
+    document.getElementById('infoTitle').innerText = title;
+    document.getElementById('infoDesc').innerHTML = desc.replace(/\n/g, '<br>');
+  }
+  function claimReward(missionId, element) {
+    fetch(`/marketplace/misiones/reclamar/${missionId}/`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        element.classList.remove('glow-purple');
+        element.classList.add('claimed');
+        element.onclick = null;
+        
+        Swal.fire({
+          title: '¡Recompensa Recibida!',
+          text: `Has ganado ${data.reward} SkillCoins por completar: ${data.title}`,
+          icon: 'success',
+          background: '#1a2230',
+          color: '#fff',
+          confirmButtonColor: '#a885e8'
+        }).then(() => location.reload());
+      }
+    });
+  }
+</script>
+{% endblock %}

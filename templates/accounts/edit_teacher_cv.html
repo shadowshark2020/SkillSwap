@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Hoja de Vida — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 750px; min-height: calc(100vh - 70px);">
+  
+  <div class="mb-4 text-center">
+    <div class="bg-purple-subtle text-purple rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 65px; height: 65px;">
+      <i class="bi bi-file-earmark-person-fill fs-3"></i>
+    </div>
+    <h2 class="fw-bold text-white">Mi Hoja de Vida Profesional</h2>
+    <p class="text-muted small">Muestra tu experiencia y credenciales para destacar ante tus futuros alumnos</p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-white" style="background-color: #1a2230;">
+      
+      <!-- Renderizado automático y estilizado del formulario de Django -->
+      <div class="mb-3">
+        {{ form.as_p }}
+      </div>
+
+    </div>
+
+    <!-- Nota informativa -->
+    <p class="text-muted text-center small px-4 mb-4" style="line-height: 1.4;">
+      Esta información aparecerá detallada en tu perfil público de maestro cuando los estudiantes exploren tus clases.
+    </p>
+
+    <!-- Botón de Envío -->
+    <div class="text-center mb-5">
+      <button type="submit" class="btn btn-purple rounded-pill px-5 py-2.5 fw-bold shadow-lg w-100" style="font-size: 1rem;">
+        Guardar Hoja de Vida
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<!-- SECCIÓN DE VERIFICACIÓN DE IDENTIDAD / DIPLOMAS -->
+<div class="card border border-secondary border-opacity-25 shadow-sm rounded-4 p-4 mb-4 text-white" style="background-color: #121824;">
+  <h5 class="fw-bold text-white mb-3"><i class="bi bi-shield-check text-purple me-2"></i>Verificación de Maestro</h5>
+  
+  {% if form.instance.is_verified %}
+    <div class="alert bg-success bg-opacity-25 text-success border border-success rounded-3 p-3 mb-0">
+      <i class="bi bi-patch-check-fill fs-5 me-2"></i> ¡Tu cuenta de maestro está <strong>Verificada</strong>! Tus documentos ya han sido eliminados de nuestros servidores por privacidad.
+    </div>
+  {% elif form.instance.verification_request_status == 'pending' %}
+    <div class="alert bg-warning bg-opacity-25 text-warning border border-warning rounded-3 p-3 mb-0">
+      <i class="bi bi-clock-history fs-5 me-2"></i> Tus documentos están en revisión. Una vez completada la validación, serán eliminados automáticamente del sistema por seguridad.
+    </div>
+  {% else %}
+    <p class="text-muted small mb-2">Sube un archivo PDF que incluya tus diplomas, títulos o certificados de experiencia.</p>
+    
+    <!-- Aviso de privacidad solicitado -->
+    <div class="alert bg-dark border border-secondary border-opacity-50 text-muted small rounded-3 p-2 mb-3">
+      <i class="bi bi-lock-fill text-info me-1"></i> <strong>Aviso de Privacidad:</strong> Una vez completada la verificación por parte del equipo de administración, dichos documentos se borrarán permanentemente del sistema.
+    </div>
+    
+    <div class="mb-3">
+      <label class="form-label text-purple fw-semibold small">Certificados o Diplomas (PDF)</label>
+      <input type="file" name="verification_document" class="form-control bg-dark text-white border-secondary rounded-3" accept=".pdf" required>
+    </div>
+
+    <button type="submit" formaction="{% url 'accounts:request_verification' %}" class="btn btn-outline-light rounded-pill px-4 btn-sm fw-semibold">
+      <i class="bi bi-upload me-1"></i> Enviar documentos para verificación
+    </button>
+  {% endif %}
+</div>
+
+<style>
+  .bg-purple { background-color: #6f42c1 !important; color: white !important; }
+  .btn-purple { background-color: #6f42c1 !important; color: white !important; border: none; }
+  .btn-purple:hover { background-color: #5a32a3 !important; color: white !important; }
+  .bg-purple-subtle { background-color: rgba(111, 66, 193, 0.2) !important; color: #a885e8 !important; }
+  .text-purple { color: #a885e8 !important; }
+  
+  /* Estilos automáticos para los campos de texto y etiquetas que genera form.as_p en modo oscuro */
+  .card p label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #a885e8;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+  .card input, .card select, .card textarea {
+    width: 100%;
+    background-color: #0d111a !important;
+    color: #fff !important;
+    border: 1px solid #333 !important;
+    border-radius: 0.5rem !important;
+    padding: 0.6rem 0.9rem !important;
+    margin-bottom: 1.2rem;
+  }
+  .card input:focus, .card select:focus, .card textarea:focus {
+    border-color: #6f42c1 !important;
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25) !important;
+    outline: none;
+  }
+  .card helptext, .card .helptext {
+    font-size: 0.75rem;
+    color: #6c757d;
+    display: block;
+    margin-top: -0.8rem;
+    margin-bottom: 1rem;
+  }
+</style>
+{% endblock %}

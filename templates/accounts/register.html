@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear cuenta — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+  <div class="col-md-6 col-lg-5">
+    <div class="card border-0 shadow-lg rounded-5 p-4 bg-white" style="border-radius: 1.75rem !important;">
+      
+      <!-- Icono e Encabezado -->
+      <div class="text-center mb-4">
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 bg-primary-subtle text-primary" style="width: 50px; height: 50px;">
+          <i class="bi bi-person-plus-fill fs-4"></i>
+        </div>
+        <h3 class="fw-bold text-dark mb-2">Crea tu cuenta</h3>
+        <p class="text-secondary extra-small mb-0" style="font-size: 0.85rem;">
+          <i class="bi bi-coin text-warning me-1"></i>Recibe SkillCoins de bienvenida al registrarte.
+        </p>
+      </div>
+
+      <!-- Alerta de Errores Globales -->
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger rounded-3 py-2 px-3 small border-0 mb-3" role="alert">
+          {% for error in form.non_field_errors %}
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span>{{ error }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Formulario -->
+      <form method="post" novalidate>
+        {% csrf_token %}
+        
+        {% for field in form %}
+          <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark small mb-1">
+              {{ field.label }}
+            </label>
+            
+            <!-- Renderiza el campo respetando los widgets configurados en forms.py -->
+            {{ field }}
+            
+            {% if field.help_text %}
+              <div class="form-text text-muted extra-small mt-1" style="font-size: 0.75rem;">{{ field.help_text }}</div>
+            {% endif %}
+
+            {% for error in field.errors %}
+              <div class="invalid-feedback d-block extra-small mt-1 text-danger fw-medium">
+                <i class="bi bi-x-circle me-1"></i>{{ error }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-purple w-100 rounded-pill py-2.5 fw-semibold shadow-sm mt-3">
+          Crear cuenta
+        </button>
+      </form>
+
+      <!-- Pie del Card -->
+      <div class="text-center mt-4 pt-2">
+        <span class="text-secondary small">¿Ya tienes cuenta?</span>
+        <a href="{% url 'accounts:login' %}" class="fw-semibold text-decoration-none ms-1 text-primary;">
+          Ingresa
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

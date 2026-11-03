@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Cómo Funciona — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="min-height: calc(100vh - 70px);">
+  
+  <!-- Encabezado Principal -->
+  <div class="text-center mb-5 mx-auto" style="max-width: 700px;">
+    <div class="bg-purple-subtle text-purple rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 75px; height: 75px;">
+      <i class="bi bi-lightbulb-fill fs-2"></i>
+    </div>
+    <h1 class="fw-bold text-white display-5 mb-3">¿Cómo funciona SkillSwap?</h1>
+    <p class="text-muted lead fs-6">Una plataforma descentralizada de intercambio de conocimientos basada en créditos de tiempo y colaboración mutua, sin dinero de por medio.</p>
+  </div>
+
+  <!-- Tarjetas Explicativas (Paso a Paso) -->
+  <div class="row g-4 justify-content-center mb-5">
+    
+    <!-- Paso 1 -->
+    <div class="col-md-4">
+      <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-white position-relative overflow-hidden" style="background-color: #1a2230;">
+        <div class="position-absolute top-0 end-0 p-3 text-secondary opacity-25 display-4 fw-bold">01</div>
+        <div class="bg-purple text-white rounded-3 d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 50px; height: 50px;">
+          <i class="bi bi-wallet2 fs-4"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-2">Gana SkillCoins</h4>
+        <p class="text-muted small mb-0">Comparte lo que sabes enseñando a otros usuarios. Cada hora de clase impartida se traduce en créditos (SkillCoins) para tu monedero.</p>
+      </div>
+    </div>
+
+    <!-- Paso 2 -->
+    <div class="col-md-4">
+      <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-white position-relative overflow-hidden" style="background-color: #1a2230;">
+        <div class="position-absolute top-0 end-0 p-3 text-secondary opacity-25 display-4 fw-bold">02</div>
+        <div class="bg-purple text-white rounded-3 d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 50px; height: 50px;">
+          <i class="bi bi-compass fs-4"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-2">Explora y Solicita</h4>
+        <p class="text-muted small mb-0">Navega por el catálogo de habilidades, encuentra la materia o arte que siempre quisiste aprender y envía una solicitud al maestro.</p>
+      </div>
+    </div>
+
+    <!-- Paso 3 -->
+    <div class="col-md-4">
+      <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-white position-relative overflow-hidden" style="background-color: #1a2230;">
+        <div class="position-absolute top-0 end-0 p-3 text-secondary opacity-25 display-4 fw-bold">03</div>
+        <div class="bg-purple text-white rounded-3 d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 50px; height: 50px;">
+          <i class="bi bi-chat-heart fs-4"></i>
+        </div>
+        <h4 class="fw-bold text-white mb-2">Coordina y Aprende</h4>
+        <p class="text-muted small mb-0">Una vez que el profesor acepte tu solicitud, se abrirá un chat privado y seguro con herramientas de archivos y notificaciones en tiempo real.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sección Destacada Inferior -->
+  <div class="card border-0 shadow-lg rounded-4 p-5 text-center text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #1a2230 0%, #121824 100%); border: 1px solid rgba(111, 66, 193, 0.3) !important;">
+    <h3 class="fw-bold mb-3">¿Listo para compartir tu talento?</h3>
+    <p class="text-muted mb-4 mx-auto" style="max-width: 500px;">Únete a nuestra comunidad académica y tecnológica. Empieza a enseñar o adquiere nuevas habilidades hoy mismo.</p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{% url 'marketplace:explore' %}" class="btn btn-purple rounded-pill px-4 py-2 fw-semibold shadow-sm">Explorar clases</a>
+      <a href="{% url 'accounts:register' %}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-semibold">Crear cuenta gratis</a>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .bg-purple { background-color: #6f42c1 !important; color: white !important; }
+  .btn-purple { background-color: #6f42c1 !important; color: white !important; border: none; }
+  .btn-purple:hover { background-color: #5a32a3 !important; color: white !important; }
+  .bg-purple-subtle { background-color: rgba(111, 66, 193, 0.2) !important; color: #a885e8 !important; }
+  .text-purple { color: #a885e8 !important; }
+</style>
+{% endblock %}

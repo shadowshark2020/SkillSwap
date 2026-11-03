@@ -1,0 +1,240 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-transparent py-3">
+  <div class="container">
+    <!-- Nuevo Logo -->
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+      <img src="{% static 'img/logo.png' %}" alt="SkillSwap" style="height: 70px; width: auto; object-fit: contain;">
+    </a>
+
+    <!-- Botón hamburguesa para móviles corregido -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- Sección de enlaces izquierda -->
+      <ul class="navbar-nav me-auto ms-4 gap-2">
+        <li class="nav-item">
+          <a class="nav-link fw-semibold px-3 py-1.5 rounded-pill d-flex align-items-center gap-2 text-dark hover-bg-light" href="{% url 'marketplace:how_it_works' %}" style="font-size: 0.95rem;">
+            <i class="bi bi-info-circle text-primary opacity-75"></i>
+            <span>Cómo funciona</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link fw-semibold px-3 py-1.5 rounded-pill d-flex align-items-center gap-2 text-dark hover-bg-light" href="{% url 'marketplace:explore' %}" style="font-size: 0.95rem;">
+            <i class="bi bi-compass text-primary opacity-75"></i>
+            <span>Explorar</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <!-- Botón de cambio de tema -->
+        <li class="nav-item me-3 d-flex align-items-center">
+          <button id="theme-toggle" class="btn btn-link p-0 text-decoration-none" title="Cambiar tema">
+            <i class="bi bi-moon-stars-fill fs-5 text-secondary" id="theme-icon"></i>
+          </button>
+        </li>
+        
+        {% if user.is_authenticated %}
+          {% if user.role == 'MAESTRO' or user.role == 'maestro' %}
+            <!-- Botón de Publicar Clase -->
+            <li class="nav-item me-2">
+              <a class="btn btn-primary rounded-pill btn-sm px-3 mt-1" href="{% url 'marketplace:create_skill' %}">
+                <i class="bi bi-plus-lg me-1"></i>Publicar clase
+              </a>
+            </li>
+          {% endif %}
+
+          <!-- BOTÓN DE MISIONES ESTILIZADO -->
+          <li class="nav-item">
+            <a class="nav-link fw-semibold px-3 py-1.5 rounded-pill d-flex align-items-center gap-2 text-dark hover-bg-light position-relative" href="{% url 'marketplace:missions_hub' %}" style="font-size: 0.95rem;">
+              <i class="bi bi-controller text-primary opacity-75 fs-5"></i>
+              <span>Misiones</span>
+              <!-- Indicador rojo de misiones disponibles -->
+              <span class="position-absolute top-25 start-25 translate-middle p-1 bg-danger border border-light rounded-circle" style="width: 8px; height: 8px;"></span>
+            </a>
+          </li>
+
+          <!-- CAMPANA DE NOTIFICACIONES -->
+          <li class="nav-item dropdown me-3 mt-1">
+            <a class="nav-link position-relative d-flex align-items-center" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #a885e8;">
+              <i class="bi bi-bell-fill fs-5"></i>
+              {% if unread_notifications_count > 0 %}
+                <span class="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger border border-dark" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                  {{ unread_notifications_count }}
+                </span>
+              {% endif %}
+            </a>
+            
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-secondary border-opacity-25 p-0 mt-2 rounded-4" aria-labelledby="notificationsDropdown" style="background-color: #1a2230; width: 380px; max-height: 450px; overflow-y: auto;">
+              
+              <!-- Encabezado del Dropdown -->
+              <li class="p-3 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center position-sticky top-0 z-3" style="background-color: #1a2230;">
+                <h6 class="mb-0 text-white fw-bold">Notificaciones</h6>
+                {% if unread_notifications_count > 0 %}
+                  <a href="{% url 'marketplace:mark_notifications_read' %}" class="text-purple small fw-semibold text-decoration-none hover-text-light">Marcar leídas</a>
+                {% endif %}
+              </li>
+
+              <!-- Lista de Notificaciones -->
+              {% for notif in user_notifications %}
+                <li>
+                  <a class="dropdown-item py-3 px-3 border-bottom border-secondary border-opacity-10 text-wrap transition-all {% if not notif.is_read %}bg-purple-subtle bg-opacity-10{% else %}bg-transparent{% endif %} hover-bg-custom" href="{{ notif.link }}">
+                    <div class="d-flex align-items-center">
+                      
+                      <!-- Avatar circular -->
+                      <div class="rounded-circle bg-purple text-white d-flex justify-content-center align-items-center me-3 flex-shrink-0 fw-bold" style="width: 45px; height: 45px;">
+                        {{ notif.sender.email|slice:":1"|upper|default:"S" }}
+                      </div>
+                      
+                      <!-- Texto y tiempo -->
+                      <div class="flex-grow-1">
+                        <p class="mb-0 text-white small" style="line-height: 1.3;">
+                          <span class="fw-bold">{{ notif.sender.username|default:notif.sender.email }}</span> {{ notif.message }}
+                        </p>
+                        <small class="text-muted" style="font-size: 0.75rem;">{{ notif.created_at|timesince }}</small>
+                      </div>
+                      
+                      <!-- Puntito indicador de no leída -->
+                      {% if not notif.is_read %}
+                        <div class="bg-primary rounded-circle ms-2 flex-shrink-0" style="width: 8px; height: 8px;"></div>
+                      {% endif %}
+                      
+                    </div>
+                  </a>
+                </li>
+              {% empty %}
+                <li class="p-5 text-center">
+                  <div class="bg-dark-custom rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-bell-slash fs-3 text-secondary opacity-50"></i>
+                  </div>
+                  <p class="text-muted small mb-0">No tienes notificaciones recientes.</p>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+
+          <!-- Desplegable de Usuario -->
+          <li class="nav-item dropdown">
+            <a class="btn bg-white rounded-pill px-3 py-1 border shadow-sm dropdown-toggle d-flex align-items-center gap-2 text-secondary fw-medium" href="#" role="button" data-bs-toggle="dropdown" style="font-size: 0.9rem">
+              <i class="bi bi-person-circle text-primary"></i>
+              <span>{{ user.email }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 rounded-4 p-2" style="min-width: 210px">
+
+              <!-- Mi Perfil -->
+              <li>
+                <a class="dropdown-item py-2 rounded-3" href="{% url 'accounts:profile_view' %}">
+                  <i class="bi bi-person-circle me-2 text-primary"></i>Mi Perfil
+                </a>
+              </li>
+
+              <!-- Mi Panel -->
+              <li>
+                <a class="dropdown-item py-2 rounded-3" href="{% url 'marketplace:dashboard' %}">
+                  <i class="bi bi-speedometer2 me-2 text-primary"></i>Mi Panel
+                </a>
+              </li>
+
+              <!-- Mis Clases (Solo Maestros) -->
+              {% if user.role == 'MAESTRO' or user.role == 'maestro' %}
+                <li>
+                  <a class="dropdown-item py-2 rounded-3" href="{% url 'marketplace:my_skills' %}">
+                    <i class="bi bi-easel me-2 text-primary"></i>Mis Clases
+                  </a>
+                </li>
+              {% endif %}
+              
+              <!-- Mi Monedero -->
+              <li>
+                <a class="dropdown-item py-2 rounded-3 d-flex align-items-center justify-content-between" href="{% url 'wallet:detail' %}">
+                  <span><i class="bi bi-wallet2 me-2 text-primary"></i>Mi monedero</span>
+                  <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill d-flex align-items-center gap-1">
+                    <i class="bi bi-coin text-warning"></i>{{ user.wallet.balance|default:0 }}
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="dropdown-item py-2 rounded-3" href="{% url 'marketplace:inbox' %}">
+                  <i class="bi bi-chat-heart text-primary me-2"></i>Mis Mensajes
+                </a>
+              </li>
+
+              <!-- Soporte Técnico -->
+              <li>
+                <a class="dropdown-item py-2 rounded-3" href="{% url 'marketplace:support_tickets' %}">
+                  <i class="bi bi-headset text-primary me-2"></i>Soporte Técnico
+                </a>
+              </li>
+
+              <!-- Mi Hoja de Vida (Solo Maestros) -->
+              {% if user.role == 'MAESTRO' or user.role == 'maestro' %}
+                <li>
+                  <a class="dropdown-item py-2 rounded-3 d-flex align-items-center" href="{% url 'accounts:edit_profile' %}">
+                    <i class="bi bi-person-lines-fill me-2 text-primary"></i>Mi Hoja de Vida
+                  </a>
+                </li>
+              {% endif %}
+
+              <!-- Panel Admin -->
+              {% if user.is_staff or user.role == 'admin' %}
+                <li>
+                  <a class="dropdown-item py-2 rounded-3" href="/admin/" target="_blank">
+                    <i class="bi bi-shield-lock me-2 text-dark"></i>Panel Admin
+                  </a>
+                </li>
+              {% endif %}
+              
+              <li><hr class="dropdown-divider my-1" /></li>
+              
+              <!-- Cerrar Sesión -->
+              <li>
+                <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item py-2 rounded-3 text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </li>
+        {% else %}
+          <!-- Accesos para invitados -->
+          <li class="nav-item">
+            <a class="btn btn-link text-dark text-decoration-none fw-medium px-3" href="{% url 'accounts:login' %}">Ingresar</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-purple fw-semibold rounded-pill px-4 py-2 shadow-sm" href="{% url 'accounts:register' %}">Crear cuenta</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ========================================== -->
+<!-- BOTÓN FLOTANTE DE SOPORTE (GLOBAL)         -->
+<!-- ========================================== -->
+{% if user.is_authenticated %}
+<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050;">
+  <a href="{% url 'marketplace:support_tickets' %}" class="btn rounded-circle shadow-lg d-flex align-items-center justify-content-center text-white" style="width: 60px; height: 60px; background: linear-gradient(135deg, #a885e8 0%, #6f42c1 100%); transition: transform 0.2s;" title="¿Necesitas ayuda? Soporte Técnico" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+    <i class="bi bi-chat-dots-fill fs-3"></i>
+  </a>
+</div>
+{% endif %}
+
+<style>
+  .hover-bg-custom:hover { background-color: #212c3f !important; }
+  .text-purple { color: #a885e8 !important; }
+  .bg-purple { background-color: #a885e8 !important; }
+  .hover-text-light:hover { color: #ffffff !important; }
+  .bg-dark-custom { background-color: #121824 !important; }
+  .drop-shadow { filter: drop-shadow(0px 0px 3px rgba(255, 193, 7, 0.5)); }
+  
+  /* Personalizar el scrollbar del dropdown de notificaciones */
+  .dropdown-menu::-webkit-scrollbar { width: 6px; }
+  .dropdown-menu::-webkit-scrollbar-track { background: #1a2230; border-radius: 10px; }
+  .dropdown-menu::-webkit-scrollbar-thumb { background: #495057; border-radius: 10px; }
+</style>

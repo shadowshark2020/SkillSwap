@@ -1,0 +1,25 @@
+{
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.diagnosticMode": "openFilesOnly",
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportAttributeAccessIssue": "none",
+    "reportArgumentType": "none",
+    "reportIncompatibleVariableOverride": "none",
+    "reportIncompatibleMethodOverride": "none"
+  },
+  "files.associations": {
+    "**/templates/**/*.html": "django-html"
+  },
+  "emmet.includeLanguages": {
+    "django-html": "html"
+  },
+  "[django-html]": {
+    "editor.tabSize": 2
+  },
+  "[python]": {
+    "editor.tabSize": 4
+  },
+  "files.exclude": {
+    "**/__pycache__": true
+  }
+}

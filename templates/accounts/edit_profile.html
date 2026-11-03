@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Perfil — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 700px; min-height: calc(100vh - 70px);">
+  
+  <div class="mb-4 text-center">
+    <h2 class="fw-bold text-white">Editar Perfil</h2>
+    <p class="text-muted small">Personaliza tu información pública en la comunidad</p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- SECCIÓN 1: FOTO Y NOMBRE DE USUARIO (Estilo Tarjeta Superior) -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-white d-flex flex-row align-items-center justify-content-between" style="background-color: #1a2230;">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-purple text-white d-flex justify-content-center align-items-center fw-bold fs-4 overflow-hidden shadow-sm" style="width: 70px; height: 70px;">
+          {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="Avatar" class="w-100 h-100 object-fit-cover">
+          {% else %}
+            {{ request.user.email|slice:":1"|upper }}
+          {% endif %}
+        </div>
+        <div>
+          <h5 class="fw-bold mb-0 text-white">{{ request.user.username|default:request.user.email }}</h5>
+          <small class="text-muted">Miembro de SkillSwap</small>
+        </div>
+      </div>
+      
+      <!-- Botón Cambiar foto ocultando el input file -->
+      <label for="avatar-input" class="btn btn-purple rounded-pill px-4 fw-semibold shadow-sm mb-0" style="cursor: pointer;">
+        Cambiar foto
+      </label>
+      <input type="file" name="avatar" id="avatar-input" class="d-none" accept="image/*">
+    </div>
+
+    <!-- SECCIÓN 2: NOMBRE DE USUARIO -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-white" style="background-color: #1a2230;">
+      <label class="form-label text-muted small fw-semibold">Nombre de usuario</label>
+      <input type="text" name="username" class="form-control bg-dark text-white border-secondary rounded-3 shadow-none px-3 py-2" value="{{ request.user.username }}" required>
+    </div>
+
+    <!-- SECCIÓN 3: PRESENTACIÓN / BIOGRAFÍA -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-white position-relative" style="background-color: #1a2230;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="form-label text-muted small fw-semibold mb-0">Presentación / Biografía</label>
+        <small class="text-muted extra-small">Máx. 150 caracteres</small>
+      </div>
+      <textarea name="bio" class="form-control bg-dark text-white border-secondary rounded-3 shadow-none px-3 py-2" rows="3" maxlength="150" placeholder="Cuéntanos sobre ti, tus habilidades o lo que te apasiona enseñar...">{{ request.user.bio }}</textarea>
+    </div>
+
+    <!-- SECCIÓN 4: ROL EN LA PLATAFORMA (Informativo / Selector) -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-white" style="background-color: #1a2230;">
+      <label class="form-label text-muted small fw-semibold">Rol asignado</label>
+      <input type="text" class="form-control bg-dark text-muted border-secondary rounded-3 shadow-none px-3 py-2" value="{{ request.user.role|title }}" disabled>
+      <small class="text-muted extra-small mt-2 d-block">Tu rol define si puedes publicar clases o adquirirlas.</small>
+    </div>
+
+    <!-- NOTA DE PRIVACIDAD INFERIOR -->
+    <p class="text-muted text-center small px-4 mb-4" style="line-height: 1.4;">
+      Cierta información del perfil, como tu nombre y biografía, es visible para todos los miembros de la comunidad SkillSwap.
+    </p>
+
+    <!-- BOTÓN DE ENVÍO -->
+    <div class="text-center mb-5">
+      <button type="submit" class="btn btn-purple rounded-pill px-5 py-2.5 fw-bold shadow-lg w-100" style="font-size: 1rem;">
+        Guardar cambios
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<style>
+  .bg-purple { background-color: #6f42c1 !important; color: white !important; }
+  .btn-purple { background-color: #6f42c1 !important; color: white !important; border: none; }
+  .btn-purple:hover { background-color: #5a32a3 !important; color: white !important; }
+  .extra-small { font-size: 0.75rem; }
+  .form-control:focus { border-color: #6f42c1 !important; box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25) !important; }
+</style>
+{% endblock %}

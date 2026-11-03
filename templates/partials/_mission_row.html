@@ -1,0 +1,29 @@
+<div class="bg-dark border-bottom border-secondary d-flex align-items-center justify-content-between p-3">
+  <div>
+    <h6 class="text-white fw-bold mb-1">{{ um.template.title }}</h6>
+    <span class="text-warning fw-bold small">({{ um.progress }}/{{ um.template.target_count }})</span>
+  </div>
+  
+  <div class="d-flex align-items-center gap-3">
+    <!-- Botón de Info [ i ] -->
+    <button class="btn btn-sm btn-info text-white rounded-2 px-2 py-1 shadow-sm" style="background: linear-gradient(180deg, #0dcaf0 0%, #055160 100%); border: 1px solid #fff;"
+      data-bs-toggle="modal" data-bs-target="#infoModal" 
+      onclick="showInfo('{{ um.template.title|escapejs }}', '{{ um.template.description|escapejs }}')">
+      <i class="bi bi-info-lg fs-5 fw-bold"></i>
+    </button>
+    
+    <!-- Caja de Recompensa -->
+    <div class="text-center p-2 reward-box 
+      {% if um.is_claimed %}claimed{% elif um.is_completed %}glow-green{% endif %}" 
+      style="width: 75px;"
+      {% if um.is_completed and not um.is_claimed %}onclick="claimReward({{ um.id }}, this)"{% endif %}>
+      
+      {% if um.is_completed and not um.is_claimed %}
+        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+      {% endif %}
+      
+      <i class="bi bi-gem fs-3 text-info drop-shadow"></i>
+      <span class="d-block small text-white fw-bold">{{ um.template.reward_amount }}</span>
+    </div>
+  </div>
+</div>

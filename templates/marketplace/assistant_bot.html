@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Asistente Virtual — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 700px;">
+  <div class="text-center mb-4">
+    <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+      <i class="bi bi-robot fs-3"></i>
+    </div>
+    <h2 class="fw-bold">Asistente Virtual SkillSwap</h2>
+    <p class="text-secondary">Pregúntame cualquier duda sobre el funcionamiento de la plataforma.</p>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-light">
+    <div class="d-flex align-items-start mb-3">
+      <div class="bg-dark text-white rounded-circle p-2 me-3"><i class="bi bi-robot"></i></div>
+      <div class="bg-white p-3 rounded-4 shadow-sm border" style="max-width: 80%;">
+        <p class="mb-0">¡Hola! Soy tu guía en SkillSwap. ¿En qué te puedo colaborar hoy? (Ej: <em>¿Cómo funcionan las SkillCoins?</em>)</p>
+      </div>
+    </div>
+
+    {% if bot_reply %}
+      <div class="d-flex align-items-end justify-content-end mb-3">
+        <div class="bg-primary text-white p-3 rounded-4 shadow-sm me-3" style="max-width: 80%;">
+          <p class="mb-0">{{ request.POST.query }}</p>
+        </div>
+        <div class="bg-primary text-white rounded-circle p-2"><i class="bi bi-person"></i></div>
+      </div>
+
+      <div class="d-flex align-items-start mb-3">
+        <div class="bg-dark text-white rounded-circle p-2 me-3"><i class="bi bi-robot"></i></div>
+        <div class="bg-white p-3 rounded-4 shadow-sm border text-dark" style="max-width: 80%;">
+          <p class="mb-0">{{ bot_reply }}</p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="input-group shadow-sm rounded-pill p-1 bg-white border">
+      <input type="text" name="query" class="form-control border-0 bg-transparent shadow-none px-4" placeholder="Escribe tu consulta aquí..." required autocomplete="off">
+      <button class="btn btn-primary rounded-pill px-4" type="submit">Preguntar</button>
+    </div>
+  </form>
+  
+  <div class="text-center mt-4">
+    <small class="text-secondary">¿Tu duda no se resolvió? <a href="{% url 'marketplace:support_tickets' %}" class="text-decoration-none fw-bold">Crea un Ticket de Soporte</a></small>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Mi monedero{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+
+    <h1 class="h3 fw-bold mb-4">Mi monedero</h1>
+
+    <div class="row g-4 mb-4">
+      <div class="col-lg-5">
+        <div class="ss-balance-card h-100">
+          <div class="small opacity-75">Saldo disponible</div>
+          <div class="ss-balance-amount"><i class="bi bi-coin me-2"></i>{{ wallet.available }}</div>
+          <div class="small opacity-75">SkillCoins</div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="row g-4 h-100">
+          <div class="col-sm-6">
+            <div class="ss-card h-100">
+              <div class="text-secondary small">Saldo total</div>
+              <div class="h2 fw-bold mb-0">{{ wallet.balance }}</div>
+              <small class="text-secondary">Incluye los tokens retenidos</small>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="ss-card h-100">
+              <div class="text-secondary small">Retenidos</div>
+              <div class="h2 fw-bold mb-0">{{ wallet.held }}</div>
+              <small class="text-secondary">Reservados para tutorías pendientes</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ss-card ss-static">
+      <h2 class="h5 fw-semibold mb-3">Movimientos</h2>
+
+      {% for entry in entries %}
+        <div class="ss-entry">
+          {% if entry.direction == "in" %}
+            <div class="ss-entry-icon text-success"><i class="bi bi-arrow-down-left-circle-fill"></i></div>
+          {% elif entry.direction == "out" %}
+            <div class="ss-entry-icon text-danger"><i class="bi bi-arrow-up-right-circle-fill"></i></div>
+          {% else %}
+            <div class="ss-entry-icon text-warning"><i class="bi bi-lock-fill"></i></div>
+          {% endif %}
+
+          <div class="flex-grow-1">
+            <div class="fw-semibold">{{ entry.get_kind_display }}</div>
+            <small class="text-secondary">
+              {{ entry.created_at|date:"d/m/Y H:i" }}{% if entry.reference %} · {{ entry.reference }}{% endif %}
+            </small>
+          </div>
+
+          <div class="text-end">
+            {% if entry.direction == "in" %}
+              <div class="fw-bold text-success">+{{ entry.amount }}</div>
+            {% elif entry.direction == "out" %}
+              <div class="fw-bold text-danger">−{{ entry.amount }}</div>
+            {% else %}
+              <div class="fw-bold text-warning-emphasis">{{ entry.amount }}</div>
+            {% endif %}
+            <small class="text-secondary">Saldo: {{ entry.balance_after }}</small>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-secondary mb-0">Aún no tienes movimientos.</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+{% endblock %}

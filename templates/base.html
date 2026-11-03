@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SkillSwap{% endblock %}</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3 CDN & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="/static/css/skillswap.css">
+
+ <style>
+  /* === VARIABLES GLOBALES === */
+  :root {
+    --ss-purple: #7300ff; 
+    --ss-blue: #00d4ff;
+    --ss-purple-light: #a35cff;
+    --ss-dark: #0f172a; /* Azul muy oscuro para el fondo */
+    --ss-dark-card: #1e293b; /* Azul grisáceo para tarjetas y footer */
+    
+    --bs-primary: var(--ss-purple);
+    --bs-primary-rgb: 115, 0, 255;
+  }
+
+  /* === TRANSICIÓN SUAVE (Efecto agradable) === */
+  body, .navbar, .card, footer, .footer, .btn, span, p, h1, h2, h3, h4, h5, h6, img {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease !important;
+  }
+
+  /* === MODO OSCURO GLOBAL (Fuerza el fondo en toda la pantalla) === */
+  [data-bs-theme="dark"] body {
+    background-color: var(--ss-dark) !important;
+    color: #f8fafc !important;
+  }
+
+  /* Aplica modo oscuro a Tarjetas, secciones blancas y el Footer */
+  [data-bs-theme="dark"] .card, 
+  [data-bs-theme="dark"] .bg-white,
+  [data-bs-theme="dark"] .bg-light,
+  [data-bs-theme="dark"] footer,
+  [data-bs-theme="dark"] .footer {
+    background-color: var(--ss-dark-card) !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+  }
+
+  [data-bs-theme="dark"] .text-dark { color: #f8fafc !important; }
+  [data-bs-theme="dark"] .text-secondary, [data-bs-theme="dark"] .text-muted { color: #94a3b8 !important; }
+  [data-bs-theme="dark"] .navbar { background-color: var(--ss-dark) !important; }
+  [data-bs-theme="dark"] hr, [data-bs-theme="dark"] .border-top { border-color: #334155 !important; }
+  
+  [data-bs-theme="dark"] .bg-primary-subtle, 
+  [data-bs-theme="dark"] .bg-indigo-subtle {
+    background-color: rgba(115, 0, 255, 0.15) !important;
+  }
+
+  /* === ESTILOS DE LA MARCA === */
+  .btn-primary, .btn-purple {
+    background: linear-gradient(135deg, var(--ss-purple) 0%, var(--ss-blue) 100%) !important;
+    border: none !important;
+    color: white !important;
+  }
+  
+  .btn-primary:hover, .btn-purple:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(115, 0, 255, 0.4) !important;
+  }
+
+  .btn-outline-primary {
+    color: var(--ss-purple) !important;
+    border-color: var(--ss-purple) !important;
+  }
+  
+  /* En modo oscuro, el azul resalta mejor en los botones sin relleno */
+  [data-bs-theme="dark"] .btn-outline-primary {
+    color: var(--ss-blue) !important; 
+    border-color: var(--ss-blue) !important;
+  }
+
+  .btn-outline-primary:hover {
+    background: linear-gradient(135deg, var(--ss-purple) 0%, var(--ss-blue) 100%) !important;
+    border-color: transparent !important;
+    color: white !important;
+  }
+
+  .text-primary, .text-indigo { color: var(--ss-purple) !important; }
+  [data-bs-theme="dark"] .text-primary { color: var(--ss-blue) !important; }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--ss-purple) 0%, var(--ss-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  [data-bs-theme="dark"] .text-gradient {
+    background: linear-gradient(135deg, var(--ss-purple-light) 0%, var(--ss-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* === BOTÓN DE MODO OSCURO DESTACADO === */
+  #theme-toggle {
+    background-color: rgba(115, 0, 255, 0.08); /* Fondo morado sutil en modo claro */
+    border: 1px solid rgba(115, 0, 255, 0.2);
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  #theme-toggle:hover {
+    background-color: rgba(115, 0, 255, 0.15);
+    transform: scale(1.08);
+  }
+
+  /* Color amarillo/naranja sutil cuando está en modo oscuro */
+  [data-bs-theme="dark"] #theme-toggle {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-color: rgba(255, 193, 7, 0.2);
+  }
+
+  [data-bs-theme="dark"] #theme-toggle:hover {
+    background-color: rgba(255, 193, 7, 0.2);
+  }
+
+  /* === LOGO ADAPTATIVO === */
+  .navbar-brand img {
+    border-radius: 50%; /* Evita esquinas blancas indeseadas */
+  }
+  
+  /* En modo oscuro, le damos un fondo blanco limpio y un resplandor neón */
+  [data-bs-theme="dark"] .navbar-brand img {
+    background-color: white; 
+    padding: 2px;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); 
+  }
+
+  /* === CORRECCIONES DEL MODO OSCURO === */
+  
+  /* 1. Arreglar los enlaces de la barra de navegación */
+  [data-bs-theme="dark"] .nav-link {
+    color: #cbd5e1 !important; /* Gris claro para que resalten */
+  }
+  [data-bs-theme="dark"] .nav-link:hover {
+    color: #f8fafc !important; /* Blanco al pasar el cursor */
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+ /* 2. Arreglar las tarjetas interiores del monedero de forma definitiva */
+  [data-bs-theme="dark"] .card .bg-white,
+  [data-bs-theme="dark"] .card .bg-light,
+  [data-bs-theme="dark"] .card .d-flex.rounded-4,
+  [data-bs-theme="dark"] .card .d-flex.rounded-3 {
+    background-color: #2a364a !important; /* Azul grisáceo claro para hacer contraste */
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+  }
+
+  /* Asegurarnos de que el texto interior de esas tarjetas sea blanco/gris claro */
+  [data-bs-theme="dark"] .card .bg-white *,
+  [data-bs-theme="dark"] .card .bg-light * {
+    color: inherit;
+  }
+  
+  [data-bs-theme="dark"] .card .bg-white .text-muted,
+  [data-bs-theme="dark"] .card .bg-light .text-muted {
+    color: #cbd5e1 !important;
+  }
+  /* === 3. CORRECCIÓN DEFINITIVA PARA MONEDERO Y FOOTER === */
+  
+  /* Forzar fondo oscuro en cualquier elemento que intente ser blanco en modo oscuro */
+  [data-bs-theme="dark"] .bg-white,
+  [data-bs-theme="dark"] .bg-light,
+  [data-bs-theme="dark"] .card {
+    background-color: var(--ss-dark-card) !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+  }
+
+  /* Asegurar que todos los textos internos hereden el color claro */
+  [data-bs-theme="dark"] .bg-white *,
+  [data-bs-theme="dark"] .bg-light * {
+    color: #f8fafc;
+  }
+
+  /* Darle más brillo a los textos grises apagados */
+  [data-bs-theme="dark"] .text-muted,
+  [data-bs-theme="dark"] .text-secondary {
+    color: #cbd5e1 !important;
+  }
+
+  /* Arreglar el contraste del Footer y sus íconos */
+  [data-bs-theme="dark"] footer,
+  [data-bs-theme="dark"] .footer,
+  [data-bs-theme="dark"] footer span,
+  [data-bs-theme="dark"] footer i,
+  [data-bs-theme="dark"] footer a {
+    color: #cbd5e1 !important;
+  }
+  /* === 4. CORRECCIÓN PARA LAS TARJETAS PERSONALIZADAS (ss-card, ss-entry) === */
+  [data-bs-theme="dark"] .ss-card {
+    background-color: var(--ss-dark-card) !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+  }
+
+  /* Bordes y fondos de las filas de movimientos */
+  [data-bs-theme="dark"] .ss-entry {
+    border-bottom: 1px solid #334155 !important;
+  }
+  
+  [data-bs-theme="dark"] .ss-entry:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  /* Textos secundarios dentro de las tarjetas personalizadas */
+  [data-bs-theme="dark"] .ss-card .text-secondary,
+  [data-bs-theme="dark"] .ss-entry .text-secondary {
+    color: #cbd5e1 !important;
+  }
+
+  /* Asegurar que la tarjeta principal morada mantenga su estilo y no se opaque */
+  [data-bs-theme="dark"] .ss-balance-card {
+    border: none !important;
+  }
+
+  /* === 5. CORRECCIÓN PARA BOTONES CLAROS E ÍCONOS CIRCULARES === */
+  [data-bs-theme="dark"] .btn-light,
+  [data-bs-theme="dark"] .bg-light.rounded-circle,
+  [data-bs-theme="dark"] .bg-white.rounded-circle {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  [data-bs-theme="dark"] .btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+  }
+
+  /* Asegurar que el ícono interior brille con el azul de la marca */
+  [data-bs-theme="dark"] .btn-light i,
+  [data-bs-theme="dark"] .bg-light.rounded-circle i,
+  [data-bs-theme="dark"] .bg-white.rounded-circle i {
+    color: var(--ss-blue) !important;
+  }
+</style>
+
+<!-- Script de inicialización del tema (Evita el parpadeo blanco) -->
+<script>
+  const savedTheme = localStorage.getItem('theme') || 
+                     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-bs-theme', savedTheme);
+</script>
+</head>
+<body>
+
+  {% include 'partials/navbar.html' %}
+
+  <main class="main-container container py-4">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-4 border-0 shadow-sm" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include 'partials/footer.html' %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const htmlElement = document.documentElement;
+
+    // Función para actualizar el ícono según el tema
+    const updateIcon = (theme) => {
+      if (theme === 'dark') {
+        themeIcon.className = 'bi bi-sun-fill fs-5 text-warning';
+      } else {
+        themeIcon.className = 'bi bi-moon-stars-fill fs-5 text-secondary';
+      }
+    };
+
+    // Configurar estado inicial
+    updateIcon(htmlElement.getAttribute('data-bs-theme'));
+
+    // Escuchar el clic del botón
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const currentTheme = htmlElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-bs-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateIcon(newTheme);
+      });
+    }
+  });
+</script>
+<!-- Botón Flotante de Soporte -->
+<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050;">
+  <a href="{% url 'marketplace:support_tickets' %}" class="btn btn-purple rounded-circle shadow-lg d-flex align-items-center justify-content-center text-white" style="width: 55px; height: 55px;" title="¿Necesitas ayuda? Soporte Técnico">
+    <i class="bi bi-chat-heart-fill fs-5"></i>
+  </a>
+</div>
+
+</body>
+</html>

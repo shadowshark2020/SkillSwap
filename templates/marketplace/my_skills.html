@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Clases — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h1 class="fw-bold text-dark">Inventario de Clases</h1>
+      <p class="text-secondary mb-0">Gestiona las habilidades que estás ofreciendo a la comunidad.</p>
+    </div>
+    <!-- Botón para crear una nueva clase (asumiendo que ya tienes una ruta create_skill) -->
+    <a href="{% url 'marketplace:create_skill' %}" class="btn btn-purple rounded-pill px-4 shadow-sm">
+  <i class="bi bi-plus-lg me-2"></i>Publicar nueva clase
+</a>
+  </div>
+
+  <div class="row g-4">
+    {% for skill in mis_clases %}
+      <div class="col-md-6 col-lg-4">
+        <div class="ss-card h-100 p-4 rounded-4 shadow-sm border-0 d-flex flex-column">
+          
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
+              <i class="bi {{ skill.category.icon }} me-1"></i>{{ skill.category.name }}
+            </span>
+            <span class="badge {% if skill.is_active %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+              {% if skill.is_active %}Activa{% else %}Inactiva{% endif %}
+            </span>
+          </div>
+
+          <h5 class="fw-bold mb-2">{{ skill.title }}</h5>
+          <p class="text-secondary small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+            {{ skill.description }}
+          </p>
+
+          <hr class="border-secondary opacity-25 my-3">
+
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-primary"><i class="bi bi-coin me-1"></i> {{ skill.price_per_hour }} SC/h</span>
+            
+            <div class="d-flex gap-2">
+              <!-- Botón Ver -->
+              <a href="{% url 'marketplace:skill_detail' skill.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver</a>
+              
+              <!-- Formulario de Eliminación Segura -->
+              <form action="{% url 'marketplace:delete_skill' skill.pk %}" method="post" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta clase de forma permanente?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Eliminar clase">
+                  <i class="bi bi-trash3-fill"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="ss-card p-5 text-center rounded-4 shadow-sm border-0">
+          <i class="bi bi-easel fs-1 text-secondary opacity-50 mb-3"></i>
+          <h4 class="fw-bold text-dark">Aún no tienes clases publicadas</h4>
+          <p class="text-secondary mb-4">Comparte tus conocimientos con la comunidad y empieza a ganar SkillCoins.</p>
+          <a href="{% url 'marketplace:create_skill' %}" class="btn btn-purple rounded-pill px-4">Publicar mi primera clase</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

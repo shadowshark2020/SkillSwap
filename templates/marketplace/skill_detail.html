@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}{{ skill.title }} — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px; min-height: calc(100vh - 70px);">
+  
+  <div class="mb-4">
+    <span class="badge bg-purple-subtle text-purple rounded-pill px-3 py-2 mb-2">
+      <i class="bi {{ skill.category.icon }} me-1"></i> {{ skill.category.name }}
+    </span>
+    <h1 class="fw-bold text-white display-5">{{ skill.title }}</h1>
+    
+    <!-- ENLACE AL PERFIL PÚBLICO DEL MAESTRO -->
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <div class="rounded-circle bg-purple text-white d-flex justify-content-center align-items-center fw-bold flex-shrink-0" style="width: 45px; height: 45px;">
+        {{ skill.teacher.email|slice:":1"|upper }}
+      </div>
+      <div>
+        <span class="text-muted small d-block">Impartida por:</span>
+        <a href="{% url 'marketplace:teacher_profile' skill.teacher.id %}" class="fw-bold text-white text-decoration-none hover-text-purple fs-5">
+          {{ skill.teacher.username|default:skill.teacher.email }} 
+          <i class="bi bi-box-arrow-up-right small ms-1 text-purple"></i>
+        </a>
+      </div>
+      <span class="ms-auto badge bg-warning text-dark rounded-pill px-3 py-2 fs-6 fw-bold">
+        <i class="bi bi-coin"></i> {{ skill.price_per_hour }} SC/h
+      </span>
+    </div>
+  </div>
+
+  <div class="card p-4 rounded-4 shadow-sm border border-secondary border-opacity-25 mb-4 text-white" style="background-color: #1a2230;">
+    <h4 class="fw-bold mb-3 text-white">¿Qué aprenderás?</h4>
+    <p class="text-muted" style="white-space: pre-wrap;">{{ skill.description }}</p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- VISTA DEL MAESTRO: LISTA DE SOLICITUDES    -->
+  <!-- ========================================== -->
+  {% if request.user == skill.teacher %}
+    <div class="card p-4 rounded-4 shadow-sm border border-secondary border-opacity-25 text-white" style="background-color: #1a2230;">
+      <h4 class="fw-bold mb-4"><i class="bi bi-people-fill text-purple me-2"></i> Solicitudes para esta clase</h4>
+      
+      <div class="row g-3">
+        {% for req in skill.requests_received.all %}
+          <div class="col-md-6">
+            <div class="card border border-secondary border-opacity-25 rounded-4 h-100 text-white" style="background-color: #121824;">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <p class="fw-bold mb-0 text-truncate text-white" style="max-width: 150px;" title="{{ req.student.email }}">
+                      <i class="bi bi-person-video3 me-1"></i> {{ req.student.username|default:req.student.email }}
+                    </p>
+                    <small class="text-muted">{{ req.created_at|date:"d M, H:i" }}</small>
+                  </div>
+                  <span class="badge 
+                    {% if req.status == 'pending' %}bg-warning text-dark
+                    {% elif req.status == 'accepted' %}bg-purple text-white
+                    {% elif req.status == 'completed' %}bg-success
+                    {% else %}bg-danger{% endif %} rounded-pill px-3 py-1">
+                    {{ req.get_status_display }}
+                  </span>
+                </div>
+                
+                <div class="d-flex gap-2">
+                  {% if req.status == 'pending' %}
+                    <form action="{% url 'marketplace:reject_request' req.pk %}" method="post" class="w-50">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill w-100">Rechazar</button>
+                    </form>
+                    <form action="{% url 'marketplace:accept_request' req.pk %}" method="post" class="w-50">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-purple rounded-pill w-100 text-white">Aceptar</button>
+                    </form>
+                  {% elif req.status == 'accepted' and req.chat_room %}
+                    <a href="{% url 'marketplace:inbox_room' req.chat_room.id %}" class="btn btn-sm btn-purple rounded-pill w-100 text-white">
+                      <i class="bi bi-chat-dots-fill me-1"></i> Abrir Chat
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center text-muted p-4">
+            <i class="bi bi-inbox fs-2 opacity-50 mb-2 d-block"></i>
+            <small>Aún no tienes solicitudes para esta clase.</small>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  <!-- ========================================== -->
+  <!-- VISTA DEL ALUMNO: SOLICITAR CLASE          -->
+  <!-- ========================================== -->
+  {% else %}
+    <div class="card p-5 rounded-4 shadow-sm border border-secondary border-opacity-25 text-center text-white" style="background-color: #1a2230;">
+      <h4 class="fw-bold mb-2">¿Listo para empezar?</h4>
+      <p class="text-muted mb-4">Necesitas <strong class="text-info">{{ skill.price_per_hour }} SkillCoins</strong> en tu monedero para solicitar esta clase.</p>
+      
+      {% if request.user.role == 'ALUMNO' or request.user.role == 'alumno' %}
+        <form action="{% url 'marketplace:request_class' skill.pk %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-purple btn-lg rounded-pill px-5 fw-bold shadow-sm">
+            Solicitar clase por {{ skill.price_per_hour }} SC
+          </button>
+        </form>
+      {% else %}
+         <button class="btn btn-secondary btn-lg rounded-pill px-5 fw-bold shadow-sm" disabled>
+           Solo los alumnos pueden solicitar clases
+         </button>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
+
+<style>
+  .bg-purple { background-color: #6f42c1 !important; color: white !important; }
+  .btn-purple { background-color: #6f42c1 !important; color: white !important; border: none; }
+  .btn-purple:hover { background-color: #5a32a3 !important; color: white !important; }
+  .bg-purple-subtle { background-color: rgba(111, 66, 193, 0.2) !important; color: #a885e8 !important; }
+  .text-purple { color: #a885e8 !important; }
+  .hover-text-purple:hover { color: #a885e8 !important; }
+</style>
+{% endblock %}

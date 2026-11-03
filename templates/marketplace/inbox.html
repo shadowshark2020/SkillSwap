@@ -1,0 +1,318 @@
+{% extends "base.html" %}
+
+{% block title %}Mensajes — SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-3 px-md-5" style="background-color: #0b0f19; min-height: calc(100vh - 70px);">
+  <div class="row g-4 h-100" style="min-height: 75vh;">
+    
+    <!-- COLUMNA 1: LISTA DE CONVERSACIONES -->
+    <div class="col-lg-4 col-xl-3 d-flex flex-column">
+      <div class="card border-0 shadow-sm rounded-4 h-100 p-3" style="background-color: #121824; color: #fff;">
+        <div class="mb-3 px-2 pt-2">
+          <h4 class="fw-bold text-white mb-0"><i class="bi bi-chat-heart-fill text-purple me-2"></i>Mensajes</h4>
+          <small class="text-muted">Tus chats de clases activos</small>
+        </div>
+        
+        <div class="overflow-auto flex-grow-1 pe-1" style="max-height: 65vh;">
+          {% for room in chat_rooms %}
+            {% if request.user == room.class_request.student %}
+              {% with other_user=room.class_request.skill.teacher %}
+                <a href="{% url 'marketplace:inbox_room' room.id %}" class="text-decoration-none">
+                  <div class="d-flex align-items-center p-3 mb-2 rounded-4 transition-all {% if active_room and active_room.id == room.id %}bg-purple-subtle border-purple shadow-sm{% else %}bg-dark-custom hover-bg-custom{% endif %}">
+                    <div class="rounded-circle bg-purple text-white d-flex justify-content-center align-items-center me-3 flex-shrink-0 fw-bold" style="width: 45px; height: 45px;">
+                      {{ other_user.email|slice:":1"|upper }}
+                    </div>
+                    <div class="overflow-hidden">
+                      <h6 class="mb-0 fw-bold text-white text-truncate">{{ other_user.username|default:other_user.email }}</h6>
+                      <small class="text-muted text-truncate d-block">{{ room.class_request.skill.title }}</small>
+                    </div>
+                  </div>
+                </a>
+              {% endwith %}
+            {% else %}
+              {% with other_user=room.class_request.student %}
+                <a href="{% url 'marketplace:inbox_room' room.id %}" class="text-decoration-none">
+                  <div class="d-flex align-items-center p-3 mb-2 rounded-4 transition-all {% if active_room and active_room.id == room.id %}bg-purple-subtle border-purple shadow-sm{% else %}bg-dark-custom hover-bg-custom{% endif %}">
+                    <div class="rounded-circle bg-purple text-white d-flex justify-content-center align-items-center me-3 flex-shrink-0 fw-bold" style="width: 45px; height: 45px;">
+                      {{ other_user.email|slice:":1"|upper }}
+                    </div>
+                    <div class="overflow-hidden">
+                      <h6 class="mb-0 fw-bold text-white text-truncate">{{ other_user.username|default:other_user.email }}</h6>
+                      <small class="text-muted text-truncate d-block">{{ room.class_request.skill.title }}</small>
+                    </div>
+                  </div>
+                </a>
+              {% endwith %}
+            {% endif %}
+          {% empty %}
+            <div class="text-center text-muted my-auto py-5">
+              <i class="bi bi-inbox fs-1 opacity-50 mb-2 d-block"></i>
+              <p class="small">No tienes chats activos aún.</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUMNA 2: CHAT ACTIVO -->
+    <div class="col-lg-8 col-xl-9 d-flex flex-column">
+      {% if active_room %}
+        <div class="card border-0 shadow-sm rounded-4 h-100 d-flex flex-column overflow-hidden" style="background-color: #121824; color: #fff;">
+          
+          <!-- Encabezado -->
+          <div class="p-3 px-4 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center" style="background-color: #121824;">
+            <div class="d-flex align-items-center">
+              <div class="rounded-circle bg-purple text-white d-flex justify-content-center align-items-center me-3 fw-bold" style="width: 40px; height: 40px;">
+                {{ other_user.email|slice:":1"|upper }}
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold text-white">{{ other_user.username|default:other_user.email }}</h6>
+                <span class="badge bg-success-subtle text-success rounded-pill px-2 py-0 extra-small">Clase: {{ active_room.class_request.skill.title }}</span>
+              </div>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#blockModal">
+                <i class="bi bi-slash-circle me-1"></i> Bloquear
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#reportModal">
+                <i class="bi bi-flag text-danger me-1"></i> Reportar
+              </button>
+            </div>
+          </div>
+
+          <!-- Área de Mensajes -->
+          <div class="flex-grow-1 p-4 overflow-auto d-flex flex-column gap-3" id="chat-box" style="max-height: 52vh; background-color: #0d111a;">
+            {% for msg in messages_list %}
+              <div class="d-flex {% if msg.sender == request.user %}justify-content-end{% else %}justify-content-start{% endif %} position-relative message-container">
+                <div class="px-4 py-2 rounded-4 shadow-sm text-break {% if msg.sender == request.user %}bg-purple text-white{% else %}bg-dark text-white border border-secondary border-opacity-25{% endif %}" style="max-width: 70%;">
+                  
+                  <!-- Si el mensaje responde a otro -->
+                  {% if msg.reply_to %}
+                    <div class="p-2 mb-2 rounded-3 border-start border-3 border-light bg-black bg-opacity-25 extra-small opacity-75">
+                      <span class="fw-bold d-block">{{ msg.reply_to.sender.username|default:msg.reply_to.sender.email }}</span>
+                      <span class="text-truncate d-block">{{ msg.reply_to.content|default:"[Archivo adjunto]" }}</span>
+                    </div>
+                  {% endif %}
+
+                  {% if msg.is_flagged_by_bot %}
+                    <small class="text-warning fw-bold d-block mb-1"><i class="bi bi-exclamation-triangle-fill"></i> Mensaje moderado</small>
+                  {% endif %}
+                  
+                  {% if msg.attachment %}
+                    <div class="mb-2">
+                      {% if msg.attachment.url|lower|slice:"-4:" == ".png" or msg.attachment.url|lower|slice:"-4:" == ".jpg" or msg.attachment.url|lower|slice:"-5:" == ".jpeg" %}
+                        <a href="{{ msg.attachment.url }}" target="_blank">
+                          <img src="{{ msg.attachment.url }}" alt="Imagen" class="img-fluid rounded-3 mb-1" style="max-height: 200px; object-fit: cover;">
+                        </a>
+                      {% else %}
+                        <a href="{{ msg.attachment.url }}" target="_blank" class="btn btn-sm btn-light rounded-pill px-3 text-dark fw-semibold text-decoration-none d-inline-flex align-items-center">
+                          <i class="bi bi-file-earmark-arrow-down-fill me-2"></i> Descargar archivo
+                        </a>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  {% if msg.content %}
+                    <p class="mb-1 message-text {% if msg.is_flagged_by_bot %}text-decoration-line-through opacity-75{% endif %}">{{ msg.content }}</p>
+                  {% endif %}
+
+                  <div class="d-flex justify-content-end align-items-center gap-2 mt-1">
+                    <small class="extra-small {% if msg.sender == request.user %}text-white-50{% else %}text-muted{% endif %}">{{ msg.timestamp|time:"H:i" }}</small>
+                    
+                    <!-- Botón de Opciones del Mensaje (Tres puntos) -->
+                    <div class="dropdown">
+                      <button class="btn btn-link text-muted p-0 shadow-none text-decoration-none" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.8rem;">
+                        <i class="bi bi-three-dots-vertical"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-dark shadow border-secondary border-opacity-25 rounded-4 p-2 text-small" style="background-color: #1a2230; min-width: 160px;">
+                        <li>
+                          <button class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2" type="button" onclick="copyMessage('{{ msg.content|escapejs }}')">
+                            <i class="bi bi-copy"></i> Copiar
+                          </button>
+                        </li>
+                        <li>
+                          <button class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2" type="button" onclick="setReply('{{ msg.id }}', '{{ msg.sender.username|default:msg.sender.email }}', '{{ msg.content|escapejs|default:"[Archivo]" }}')">
+                            <i class="bi bi-reply"></i> Responder
+                          </button>
+                        </li>
+                        {% if msg.sender == request.user %}
+                          <li><hr class="dropdown-divider border-secondary opacity-25"></li>
+                          <li>
+                            <a class="dropdown-item rounded-3 py-2 d-flex align-items-center gap-2 text-danger fw-semibold text-decoration-none" href="{% url 'marketplace:delete_message' msg.id %}">
+                              <i class="bi bi-arrow-counterclockwise"></i> Anular envío
+                            </a>
+                          </li>
+                        {% endif %}
+                      </ul>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-center text-muted my-auto">
+                <i class="bi bi-chat-quote fs-1 opacity-25 mb-2 d-block"></i>
+                <p class="small text-muted">Esta es una nueva conversación. ¡Saluda a tu compañero!</p>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Barra de Escritura y Caja de Respuesta Activa -->
+          <div class="p-3 border-top border-secondary border-opacity-25" style="background-color: #121824;">
+            {% if not is_blocked %}
+              <form method="post" action="{% url 'marketplace:inbox_room' active_room.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Input oculto para ID de mensaje respondido -->
+                <input type="hidden" name="reply_to_id" id="reply-to-id" value="">
+
+                <!-- Vista previa flotante al responder -->
+                <div id="reply-preview-container" class="d-none mb-2 p-2 rounded-3 border-start border-3 border-purple bg-dark px-3 d-flex justify-content-between align-items-center">
+                  <div>
+                    <small class="text-purple fw-bold d-block" id="reply-username">Respondiendo a...</small>
+                    <small class="text-muted text-truncate d-block" id="reply-text" style="max-width: 300px;"></small>
+                  </div>
+                  <button type="button" class="btn btn-close btn-close-white btn-sm shadow-none" onclick="cancelReply()"></button>
+                </div>
+
+                <div class="input-group shadow-sm rounded-pill p-1 border border-secondary border-opacity-25 align-items-center" style="background-color: #1a2230;">
+                  <input type="file" name="attachment" id="file-input" class="d-none" onchange="updateFileName()">
+                  <label for="file-input" class="btn btn-transparent text-muted px-3 mb-0" style="cursor: pointer;" title="Adjuntar archivo">
+                    <i class="bi bi-paperclip fs-5"></i>
+                  </label>
+
+                  <input type="text" name="content" class="form-control border-0 bg-transparent text-white shadow-none px-2" placeholder="Escribe un mensaje..." autocomplete="off" id="message-input">
+                  
+                  <button class="btn btn-purple rounded-pill px-4" type="submit">
+                    <i class="bi bi-send-fill me-1"></i> Enviar
+                  </button>
+                </div>
+                <small id="file-name-display" class="text-muted px-3 mt-1 d-block extra-small"></small>
+              </form>
+            {% else %}
+              <div class="alert alert-danger rounded-pill text-center mb-0 py-2 small">
+                <i class="bi bi-slash-circle-fill me-1"></i> Conversación bloqueada. No puedes enviar más mensajes.
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
+      {% else %}
+        <div class="card border-0 shadow-sm rounded-4 h-100 d-flex align-items-center justify-content-center text-center p-5" style="background-color: #121824; color: #fff;">
+          <div class="text-muted">
+            <div class="bg-purple-subtle text-purple rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+              <i class="bi bi-chat-dots fs-2"></i>
+            </div>
+            <h4 class="fw-bold text-white">Tus Conversaciones</h4>
+            <p class="small mb-0 text-muted">Selecciona un chat en la lista de la izquierda para comenzar a coordinar tus clases.</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<!-- Modales de Bloquear y Reportar -->
+<div class="modal fade" id="blockModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow text-white p-4 position-relative" style="background-color: #1a2230;">
+      <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4 shadow-none" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      <h4 class="fw-bold text-white mb-3">Bloquear usuario</h4>
+      <p class="text-muted small mb-4">¿Estás seguro de que deseas bloquear a este usuario?</p>
+      <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold text-dark shadow-sm" data-bs-dismiss="modal">Cancelar</button>
+        {% if other_user %}
+        <form action="{% url 'marketplace:block_user' other_user.id %}" method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold shadow-sm">Sí, bloquear</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow text-white p-4 position-relative" style="background-color: #1a2230;">
+      <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4 shadow-none" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      <h4 class="fw-bold text-white mb-3">Reportar usuario</h4>
+      {% if other_user %}
+      <form action="{% url 'marketplace:report_user' other_user.id %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold small text-muted">Motivo</label>
+          <select name="reason" class="form-select rounded-3 bg-dark text-white border-secondary" required>
+            <option value="" disabled selected>Selecciona un motivo...</option>
+            <option value="Lenguaje inapropiado">Lenguaje inapropiado</option>
+            <option value="Acoso">Acoso o falta de respeto</option>
+            <option value="Fraude">Fraude o spam</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold small text-muted">Descripción</label>
+          <textarea name="description" class="form-control rounded-3 bg-dark text-white border-secondary" rows="3" placeholder="Detalles..." required></textarea>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold text-dark shadow-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger rounded-pill px-4 fw-semibold shadow-sm">Enviar reporte</button>
+        </div>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-purple { background-color: #6f42c1 !important; color: white !important; }
+  .btn-purple { background-color: #6f42c1 !important; color: white !important; border: none; }
+  .btn-purple:hover { background-color: #5a32a3 !important; color: white !important; }
+  .bg-purple-subtle { background-color: rgba(111, 66, 193, 0.2) !important; }
+  .border-purple { border-color: #6f42c1 !important; }
+  .text-purple { color: #a885e8 !important; }
+  .bg-dark-custom { background-color: #1a2230 !important; }
+  .hover-bg-custom:hover { background-color: #212c3f !important; }
+  .transition-all { transition: all 0.2s ease-in-out; }
+  .extra-small { font-size: 0.75rem; }
+  .dropdown-item:hover { background-color: rgba(111, 66, 193, 0.3) !important; color: #fff !important; }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var chatBox = document.getElementById("chat-box");
+    if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+  });
+
+  function updateFileName() {
+    const fileInput = document.getElementById('file-input');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    if (fileInput.files.length > 0) {
+      fileNameDisplay.textContent = "Archivo seleccionado: " + fileInput.files[0].name;
+    } else {
+      fileNameDisplay.textContent = "";
+    }
+  }
+
+  function copyMessage(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("¡Mensaje copiado al portapapeles!");
+    });
+  }
+
+  function setReply(id, username, text) {
+    document.getElementById('reply-to-id').value = id;
+    document.getElementById('reply-username').textContent = "Respondiendo a " + username;
+    document.getElementById('reply-text').textContent = text;
+    document.getElementById('reply-preview-container').classList.remove('d-none');
+    document.getElementById('message-input').focus();
+  }
+
+  function cancelReply() {
+    document.getElementById('reply-to-id').value = "";
+    document.getElementById('reply-preview-container').classList.add('d-none');
+  }
+</script>
+{% endblock %}
