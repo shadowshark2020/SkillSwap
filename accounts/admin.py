@@ -1,6 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import TeacherProfile
+# 1. Importa tu modelo de usuario (cambia 'User' si en models.py se llama distinto, como 'CustomUser')
+from .models import TeacherProfile, User 
+
+# 2. Registra el modelo principal para que aparezca en el panel
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    pass # Esto aplica la vista profesional completa que Django trae por defecto
 
 @admin.register(TeacherProfile)
 class TeacherProfileAdmin(admin.ModelAdmin):
