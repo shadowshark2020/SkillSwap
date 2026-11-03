@@ -143,4 +143,21 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 from django.contrib.messages import constants as message_constants
 
 MESSAGE_TAGS = {message_constants.ERROR: "danger"}
+
 SKILLSWAP_WELCOME_BONUS = 20  # RF-01: tokens de bienvenida
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+    "root": {"handlers": ["console"], "level": "WARNING"},
+}
