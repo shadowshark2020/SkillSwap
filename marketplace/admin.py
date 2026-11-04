@@ -49,3 +49,6 @@ class UserMissionAdmin(admin.ModelAdmin):
     list_display = ('user', 'template', 'progress', 'is_completed', 'is_claimed', 'assigned_date')
     list_filter = ('is_completed', 'is_claimed', 'assigned_date')
     search_fields = ('user__email', 'template__title')
+    
+admin.site.register(Category)
+admin.site.register(Skill)
