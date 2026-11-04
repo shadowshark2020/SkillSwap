@@ -6,18 +6,33 @@ from .models import TeacherProfile
 User = get_user_model()
 
 class CustomUserCreationForm(UserCreationForm):
-    # 1. Definimos explícitamente solo los roles permitidos
     ROLES_PERMITIDOS = [
         ('alumno', 'Alumno'),
         ('maestro', 'Maestro'),
     ]
     
-    # 2. Sobrescribimos el campo role para que solo use las opciones de arriba
-    role = forms.ChoiceField(choices=ROLES_PERMITIDOS, label="Role")
+    # Cambiamos "Role" por "Tipo de usuario"
+    role = forms.ChoiceField(choices=ROLES_PERMITIDOS, label="Tipo de usuario")
 
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ('email', 'role')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Iterar sobre los campos para darles estilo y arreglar el texto final
+        for field_name, field in self.fields.items():
+            
+            # Aplicar clases de Bootstrap y nuestra clase personalizada 'ss-input'
+            if isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'form-select ss-input text-white'})
+            else:
+                field.widget.attrs.update({'class': 'form-control ss-input text-white'})
+            
+            # Cambiar "Contraseña (confirmación)" por "Repetir contraseña"
+            if field.label and 'confirm' in str(field.label).lower():
+                field.label = "Repetir contraseña"
 
 class TeacherProfileForm(forms.ModelForm):
     class Meta:

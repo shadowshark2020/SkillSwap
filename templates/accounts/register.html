@@ -72,3 +72,43 @@
   </div>
 </div>
 {% endblock %}
+
+<!-- Aquí termina tu formulario y el resto de tu contenido HTML -->
+        
+        <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const passInputs = document.querySelectorAll('input[type="password"]');
+            if (passInputs.length >= 1) {
+                const mainPassInput = passInputs[0];
+                const helpText = mainPassInput.parentElement.querySelector('.helptext, ul, .form-text, .text-muted') || 
+                                 mainPassInput.nextElementSibling;
+                
+                if (helpText) {
+                    helpText.style.listStyleType = "none";
+                    helpText.style.paddingLeft = "0";
+                    
+                    mainPassInput.addEventListener('input', function() {
+                        const val = mainPassInput.value;
+                        if (val.length === 0) {
+                            helpText.classList.remove('valid-glow', 'invalid-glow');
+                            return;
+                        }
+
+                        const hasLength = val.length >= 8;
+                        const noSpaces = val.indexOf(' ') === -1;
+                        const hasNumOrSym = /[\d\W_]/.test(val);
+
+                        if (hasLength && noSpaces && hasNumOrSym) {
+                            helpText.classList.remove('invalid-glow');
+                            helpText.classList.add('valid-glow');
+                        } else {
+                            helpText.classList.remove('valid-glow');
+                            helpText.classList.add('invalid-glow');
+                        }
+                    });
+                }
+            }
+        });
+        </script>
+    </body>
+</html>
